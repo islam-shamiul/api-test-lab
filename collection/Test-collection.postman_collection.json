@@ -350,12 +350,14 @@
           "script": {
             "exec": [
               "let response = pm.response.json()\r",
-              "switch (pm.response.status)\r",
+              "switch (pm.response.code)\r",
+              "\r",
               "{\r",
               "    case 200:\r",
               "        pm.environment.set(\"auth_key\",response.auth_key)\r",
               "        pm.environment.set(\"auth_expire\", Date.now() + response.expires_in *1000 )\r",
               "        pm.environment.set(\"user_balance\",response.account.balance)\r",
+              "        console.log(\"hello\")\r",
               "        break;\r",
               "\r",
               "    default:\r",
@@ -472,7 +474,7 @@
               "path": ""
             }
           ],
-          "body": "{\n    \"auth_key\": \"enc_auth_key_ABC\",\n    \"expires_in\": 3600,\n    \"account\": {\n        \"balance\": 8000\n    }\n}"
+          "body": "{\n    \"auth_key\": \"enc_auth_key_ABCd\",\n    \"expires_in\": 3500,\n    \"account\": {\n        \"balance\": 8000\n    }\n}"
         }
       ]
     },
