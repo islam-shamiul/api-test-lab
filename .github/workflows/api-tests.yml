@@ -25,11 +25,7 @@ jobs:
         run: mkdir -p reports
 
       - name: Run Postman Collection
-        run: newman run collection/Test-collection.postman_collection.json \
-          -e environments/test.postman_environment.json \
-          -r cli,htmlextra \
-          --reporter-htmlextra-export reports/report.html \
-          --reporter-htmlextra-title "Fintech API QA Report"
+        run: newman run collection/Test-collection.postman_collection.json -e environments/test.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export reports/report.html --reporter-htmlextra-title "Fintech API QA Report"
 
       - name: Upload Report Artifact
         uses: actions/upload-artifact@v4
