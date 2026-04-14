@@ -489,8 +489,7 @@
               "pm.test(\"auth key validation\",function(){\r",
               "\r",
               "    if (!authKey || Date.now() > expiry) {\r",
-              "    pm.environment.set(\"next_request\", pm.info.requestName);\r",
-              "    pm.setNextRequest(\"Login\");\r",
+              "    postman.setNextRequest(\"Login\");\r",
               "    }\r",
               "})\r",
               ""
@@ -583,7 +582,6 @@
               "pm.test(\"auth key validation\",function(){\r",
               "\r",
               "    if (!authKey || Date.now() > expiry) {\r",
-              "    pm.environment.set(\"next_request\", pm.info.requestName);\r",
               "    pm.setNextRequest(\"Login\");\r",
               "    }\r",
               "})"
@@ -663,6 +661,8 @@
               ]
             }
           },
+          "status": "OK",
+          "code": 200,
           "_postman_previewlanguage": "json",
           "header": [
             {
