@@ -8,19 +8,680 @@
   },
   "item": [
     {
-      "name": "New Request",
+      "name": "app-status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"App is up\",function()\r",
+              "{\r",
+              "\r",
+              "    pm.response.to.have.status(200)\r",
+              "\r",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
       "request": {
         "method": "GET",
-        "header": [],
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{aut_key}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"eve.holt@reqres.in\",\r\n    \"password\": \"pistol\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
         "url": {
-          "raw": "{{protocol}}://{{base_url}}",
-          "protocol": "{{protocol}}",
+          "raw": "{{base_url}}/test",
           "host": [
             "{{base_url}}"
+          ],
+          "path": [
+            "test"
           ]
         }
       },
-      "response": []
+      "response": [
+        {
+          "name": "app-status",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{aut_key}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"eve.holt@reqres.in\",\r\n    \"password\": \"pistol\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/test",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "test"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"status\": \"UP\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "user_check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json()\r",
+              "\r",
+              "\r",
+              "pm.test(\"user not found\",function()\r",
+              "{\r",
+              "    pm.expect(response.error).to.be.eql(\"USER_NOT_FOUND\")\r",
+              "\r",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{aut_key}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"eve.holt@reqres.in\",\r\n  \"password\": \"cityslicka\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/99999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "99999"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "user_check",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/99999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "99999"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": "{\n    \"error\": \"USER_NOT_FOUND\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "add_user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json()\r",
+              "\r",
+              "\r",
+              "\r",
+              "switch (pm.response.code){\r",
+              "case 200:\r",
+              "    pm.test(\"status code is 200\",function()\r",
+              "    {\r",
+              "        pm.response.to.have.status(200)\r",
+              "    })\r",
+              "    pm.environment.set(\"username\",response.username)\r",
+              "    pm.environment.set(\"user_id\",response.user_id)\r",
+              "    pm.environment.set(\"encrypted_password\", response.encrypted_password)\r",
+              "    break;\r",
+              "}\r",
+              "\r",
+              "\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let raw = (pm.request.body.raw)\r",
+              "raw = pm.variables.replaceIn(raw)\r",
+              "let requestbody = JSON.parse(raw)\r",
+              "\r",
+              "pm.test(\"request body should have firstName\",function()\r",
+              "{\r",
+              "    pm.expect(requestbody).to.have.property(\"firstName\")\r",
+              "})\r",
+              "\r",
+              "pm.test(\"request body should have password\",function()\r",
+              "{\r",
+              "    pm.expect(requestbody).to.have.property(\"password\")\r",
+              "})\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"firstName\":\"Shamiu11l\",\r\n\"lastName\":\"Islam\",\r\n\"password\":\"Pass@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/add",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "add"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "add_user",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"firstName\":\"Shamiul\",\r\n\"lastName\":\"Islam\",\r\n\"password\":\"Pass@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/users/add",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "add"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": "{\n    \"user_id\": 101,\n    \"username\": \"user_101\",\n    \"encrypted_password\": \"enc_pass_101\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json()\r",
+              "switch (pm.response.status)\r",
+              "{\r",
+              "    case 200:\r",
+              "        pm.environment.set(\"auth_key\",response.auth_key)\r",
+              "        pm.environment.set(\"auth_expire\", Date.now() + response.expires_in *1000 )\r",
+              "        pm.environment.set(\"user_balance\",response.account.balance)\r",
+              "        break;\r",
+              "\r",
+              "    default:\r",
+              "        console.log(\"Unexpected error code found\")\r",
+              "}\r",
+              "\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let raw = (pm.request.body.raw)\r",
+              "raw = pm.variables.replaceIn(raw)\r",
+              "let requestbody = JSON.parse(raw)\r",
+              "\r",
+              "pm.test(\"request body should have username\",function()\r",
+              "{\r",
+              "    pm.expect(requestbody).to.have.property(\"username\")\r",
+              "})\r",
+              "\r",
+              "pm.test(\"request body should have encrypted_password\",function()\r",
+              "{\r",
+              "    pm.expect(requestbody).to.have.property(\"encrypted_password\")\r",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"username\":\"{{username}}\",\r\n\"encrypted_password\":\"{{encrypted_password}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Login",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"username\":\"{{username}}\",\r\n\"encrypted_password\":\"{{encrypted_password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": "{\n    \"auth_key\": \"enc_auth_key_ABC\",\n    \"expires_in\": 3600,\n    \"account\": {\n        \"balance\": 8000\n    }\n}"
+        }
+      ]
+    },
+    {
+      "name": "get_products",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let authKey = pm.environment.get(\"auth_key\");\r",
+              "let expiry = pm.environment.get(\"auth_expiry\");\r",
+              "\r",
+              "pm.test(\"auth key validation\",function(){\r",
+              "\r",
+              "    if (!authKey || Date.now() > expiry) {\r",
+              "    pm.environment.set(\"next_request\", pm.info.requestName);\r",
+              "    pm.setNextRequest(\"Login\");\r",
+              "    }\r",
+              "})\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{aut_key}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/products",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "get_products",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{aut_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/products?",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": "{\r\n\"services\":[{\"service_id\":1},{\"service_id\":2}]\r\n}"
+        }
+      ]
+    },
+    {
+      "name": "select_product",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let authKey = pm.environment.get(\"auth_key\");\r",
+              "let expiry = pm.environment.get(\"auth_expiry\");\r",
+              "\r",
+              "pm.test(\"auth key validation\",function(){\r",
+              "\r",
+              "    if (!authKey || Date.now() > expiry) {\r",
+              "    pm.environment.set(\"next_request\", pm.info.requestName);\r",
+              "    pm.setNextRequest(\"Login\");\r",
+              "    }\r",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{aut_key}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"productid\" : 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/products/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "products",
+            "1"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "select_product",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{aut_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"productid\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "1"
+              ]
+            }
+          },
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": "{\r\n    \"product name\": \"cash in\"\r\n}"
+        }
+      ]
     }
   ]
 }
