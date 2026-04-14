@@ -32,3 +32,14 @@ jobs:
         with:
           name: newman-report
           path: reports/report.html
+          
+      - name: Commit and Push Report
+        run: 
+          git config --global user.name "islam-shamiul"
+          git config --global user.email "islamshamiul7@gmail.com"
+
+          git add reports/report.html
+
+          git commit -m "Update test report [skip ci]" || echo "No changes"
+
+          git push
