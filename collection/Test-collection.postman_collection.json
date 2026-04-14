@@ -1,0 +1,26 @@
+{
+  "info": {
+    "_postman_id": "27523f92-731a-410f-bbd3-e95a624de324",
+    "name": "Test-collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "11299029",
+    "_collection_link": "https://go.postman.co/collection/11299029-27523f92-731a-410f-bbd3-e95a624de324?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{protocol}}://{{base_url}}",
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{base_url}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
