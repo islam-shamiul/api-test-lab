@@ -1,209 +1,70 @@
-# api-test-lab
-
-# Fintech API Testing Lab
+# Fintech API Testing Lab (Postman)
 
 ## Overview
 
-This is a sample project where I tried to simulate a basic fintech API flow using Postman.
+This project simulates a **fintech transaction flow** using Postman and a mock server.
 
-The idea was to go beyond simple API calls and include things like:
+It covers:
 
-* authentication handling
-* transaction flow
-* idempotency (to avoid duplicate transactions)
-* basic fraud checks
-* retry logic
+* User onboarding (register + login)
+* Authentication handling
+* Service selection
+* Balance check
+* Pre-validation (fraud + eligibility)
+* Transaction execution
+* Mock-based validation (200 / 403 scenarios)
 
-Everything is mocked using Postman Mock Server.
+The goal is to demonstrate **real-world QA testing practices**, not just API calls.
 
 ---
 
 ## Setup
 
-### 1. Install Postman
+### 1. Import Files
 
-Download and install Postman if you don’t already have it.
-
----
-
-### 2. Import Collection
-
-* Open Postman
-* Click **Import**
-* Import:
-
-  * `collection.json`
-  * `environment.json`
+* Import the Postman Collection
+* Import the Environment
 
 ---
 
-### 3. Setup Environment
-
-Make sure these variables exist:
-
-```
-base_url
-
-user_id
-username
-encrypted_password
-
-auth_key
-auth_expiry
-
-user_balance
-service_id
-
-trx_amount = 1000
-
-idempotency_key
-hmac_signature
-```
-
----
-
-### 4. Setup Mock Server
-
-* Open the collection
-* Add **Example responses**
-* Click **Mock Collection**
-* Copy the mock URL
+### 2. Configure Environment
 
 Set:
 
-```
+```text
 base_url = https://<your-mock-id>.mock.pstmn.io
 ```
 
----
-
-### 5. Run the Flow
-
-Run in order:
-
-```
-Health → Register → Login → Services → Balance → Transaction → Statement
-```
 
 ---
 
-## CI/CD (Automated API Testing)
+## 🚀 API Flow
 
-This project uses **Newman** (Postman CLI runner) to run tests in CI/CD.
-
----
-
-### Install Newman
-
-```
-npm install -g newman
+```text
+1. app-status
+2. user_check
+3. add_user
+4. Login
+5. get_products
+6. select_product
+7. check Balance
+8. prevalidation
+9. transaction
 ```
 
 ---
 
-### Run Tests Locally
+## Authentication Flow
 
-```
-newman run postman/collection.json \
-  -e postman/environment.json
-```
+* Login generates:
 
----
+  * `auth_key`
+  * `auth_expire`
+  * `user_balance`
 
-### GitHub Actions Setup
+* Protected APIs validate:
 
-Create this file:
-
-```
-.github/workflows/api-tests.yml
-```
-
----
-
-### CI Workflow
-
-Please check the below file
-
-```
-.github/workflows/api-tests.yml
-```
-
-
-### What this does
-
-* Runs tests on every push
-* Validates API flow automatically
-* Helps catch issues early
-
----
-
-## Flow
-
-```
-Health → Register → Login
-       ↓
-   Services → Balance
-       ↓
-   Transaction → Statement
-```
-
----
-
-## Auth
-
-Headers used:
-
-```
-Authorization: Bearer {{auth_key}}
-X-Auth-Hash: {{encrypted_password}}
-```
-
-Transaction only:
-
-```
-X-Signature: {{hmac_signature}}
-Idempotency-Key: {{idempotency_key}}
-```
-
----
-
-## APIs
-
-* GET /test
-* GET /users/99999
-* POST /users/add
-* POST /auth/login
-* GET /products
-* GET /users/{{user_id}}
-* POST /posts/add
-* GET https://httpstat.us/500
-
----
-
-## Special Logic
-
-### Idempotency
-
-```
-if (!pm.environment.get("idempotency_key")) {
-    pm.environment.set("idempotency_key", "idem_" + Date.now());
-}
-```
-
----
-
-### HMAC
-
-```
-let payload = pm.request.body.raw;
-pm.environment.set("hmac_signature", btoa(payload + "secret_key"));
-```
-
----
-
-### Auth Expiry
-
-```
+```javascript
 if (!authKey || Date.now() > expiry) {
     postman.setNextRequest("Login");
 }
@@ -211,21 +72,169 @@ if (!authKey || Date.now() > expiry) {
 
 ---
 
-### Retry
+## Balance API
 
+```http
+GET /balance/{{user_id}}
 ```
-if (pm.response.code !== 200 && retry < 3) {
-    postman.setNextRequest(pm.info.requestName);
+
+Stores:
+
+```javascript
+pm.environment.set("balance", response.balance);
+```
+
+---
+
+## Pre-Validation API (CORE LOGIC)
+
+```http
+POST /transactions/pre-validate
+```
+
+### Purpose:
+
+* Fraud detection
+* Balance validation
+* Charge calculation
+* Generate `pre_trx_id`
+
+---
+
+### Fraud Checks Implemented
+
+```javascript
+let amount = Number(pm.environment.get("trx_amount"));
+let balance = Number(pm.environment.get("balance"));
+
+// Fraud
+if (amount > 5000) {
+    throw new Error("FRAUD_DETECTED");
+}
+
+// Invalid
+if (amount <= 0) {
+    throw new Error("INVALID_AMOUNT");
+}
+
+// Balance
+if (amount > balance) {
+    throw new Error("INSUFFICIENT_BALANCE");
 }
 ```
 
 ---
 
-## Notes
+### Success Response
 
-* Uses mock responses (no real backend)
-* Focus is on testing flow and QA practices
-* Designed for learning + portfolio
+```json
+{
+  "pre_trx_id": "pre_123456",
+  "amount": 1000,
+  "charge": 20,
+  "total_amount": 1020,
+  "eligible": true
+}
+```
+
+---
+
+## Transaction API
+
+```http
+POST /transactions/execute
+```
+
+---
+
+### Validation Rules
+
+Transaction succeeds only if:
+
+* `pre_trx_id` matches pre-validation
+* `total_amount` matches calculated value
+* request is not tampered
+
+---
+
+### Request
+
+```json
+{
+  "user_id": "{{user_id}}",
+  "service_id": "{{service_id}}",
+  "amount": "{{trx_amount}}",
+  "total_amount": "{{total_amount}}",
+  "pre_trx_id": "{{pre_trx_id}}"
+}
+```
+
+---
+
+## Transaction Test Cases (Implemented)
+
+### Success Cases
+
+* Status code is 200
+* Transaction ID exists
+* Status = SUCCESS
+* `pre_trx_id` present
+* `total_amount` matches pre-validation
+
+---
+
+### Failure Case (Mock)
+
+If `pre_trx_id` is wrong:
+
+```json
+{
+  "pre_trx_id": "invalid_999"
+}
+```
+
+Response:
+
+* Status: **403**
+
+---
+
+## Mock Server Behavior
+
+Mock server uses **example matching**:
+
+| Case    | pre_trx_id | Response |
+| ------- | ---------- | -------- |
+| Valid   | pre_123456 | 200      |
+| Invalid | wrong_id   | 403      |
+
+---
+
+## Key Learnings
+
+* Postman mock server requires **exact path matching**
+* Variables (`{{var}}`) do NOT work in examples
+* All environment values are stored as **strings**
+* Type conversion is required for validation
+
+---
+
+## Known Issues / Improvements
+
+* Duplicate test cases in transaction script
+* `auth_expiry` vs `auth_expire` naming inconsistency
+* `aut_key` typo in headers (should be `auth_key`)
+* Mock server is static (no dynamic validation)
+
+---
+
+## What This Project Demonstrates
+
+* End-to-end API testing flow
+* Auth handling with expiry
+* Fraud validation logic
+* Pre-validation + execution design
+* Mock-based testing strategy
 
 ---
 

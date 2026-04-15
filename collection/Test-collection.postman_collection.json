@@ -68,6 +68,11 @@
                 "key": "x-api-key",
                 "value": "{{aut_key}}",
                 "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
               }
             ],
             "body": {
@@ -169,7 +174,22 @@
           "name": "user_check",
           "originalRequest": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"eve.holt@reqres.in\",\r\n  \"password\": \"cityslicka\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{base_url}}/users/99999",
               "host": [
@@ -302,7 +322,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n\"firstName\":\"Shamiul\",\r\n\"lastName\":\"Islam\",\r\n\"password\":\"Pass@123\"\r\n}",
+              "raw": "{\r\n\"firstName\":\"Shamiu11l\",\r\n\"lastName\":\"Islam\",\r\n\"password\":\"Pass@123\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -486,7 +506,7 @@
           "script": {
             "exec": [
               "let authKey = pm.environment.get(\"auth_key\");\r",
-              "let expiry = pm.environment.get(\"auth_expiry\");\r",
+              "let expiry = pm.environment.get(\"auth_expire\");\r",
               "\r",
               "pm.test(\"auth key validation\",function(){\r",
               "\r",
@@ -495,6 +515,20 @@
               "    }\r",
               "})\r",
               ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response= pm.response.json()\r",
+              "\r",
+              "\r",
+              "pm.environment.set(\"service_id\", response.services[0].service_id)"
             ],
             "type": "text/javascript",
             "packages": {},
@@ -529,7 +563,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "{{aut_key}}",
+                "value": "{{auth_key}}",
                 "type": "text"
               }
             ],
@@ -584,7 +618,7 @@
               "pm.test(\"auth key validation\",function(){\r",
               "\r",
               "    if (!authKey || Date.now() > expiry) {\r",
-              "    pm.setNextRequest(\"Login\");\r",
+              "    postman.setNextRequest(\"Login\");\r",
               "    }\r",
               "})"
             ],
@@ -602,7 +636,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "{{aut_key}}",
+            "value": "{{auth_key}}",
             "type": "text"
           }
         ],
@@ -616,13 +650,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/products/1",
+          "raw": "{{base_url}}/products/{{service_id}}",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "products",
-            "1"
+            "{{service_id}}"
           ]
         }
       },
@@ -653,13 +687,13 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/products/1",
+              "raw": "{{base_url}}/products/{{service_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "products",
-                "1"
+                "{{service_id}}"
               ]
             }
           },
@@ -682,6 +716,554 @@
             }
           ],
           "body": "{\r\n    \"product name\": \"cash in\"\r\n}"
+        }
+      ]
+    },
+    {
+      "name": "check Balance",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let authKey = pm.environment.get(\"auth_key\");\r",
+              "let expiry = pm.environment.get(\"auth_expiry\");\r",
+              "\r",
+              "pm.test(\"auth key validation\",function(){\r",
+              "\r",
+              "    if (!authKey || Date.now() > expiry) {\r",
+              "    postman.setNextRequest(\"Login\");\r",
+              "    }\r",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.environment.set(\"balance\",response.balance)"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Auth-Hash",
+            "value": "{{encrypted_password}}",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "{{auth_key}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"productid\" : 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/balance/{{user_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "balance",
+            "{{user_id}}"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "check Balance",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Auth-Hash",
+                "value": "{{encrypted_password}}",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"productid\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/balance/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "balance",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": "{\r\n    \"balance\":8000\r\n}"
+        }
+      ]
+    },
+    {
+      "name": "prevalidation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json();\r",
+              "\r",
+              "pm.environment.set(\"pre_trx_id\", response.pre_trx_id);\r",
+              "pm.environment.set(\"charge\", response.charge);\r",
+              "pm.environment.set(\"total_amount\", response.total_amount);\r",
+              "\r",
+              "// Eligibility\r",
+              "pm.test(\"User eligible for transaction\", function() {\r",
+              "    pm.expect(response.eligible).to.eql(true);\r",
+              "});\r",
+              "\r",
+              "// Charge validation\r",
+              "pm.test(\"Charge calculated\", function() {\r",
+              "    pm.expect(response.charge).to.be.a(\"number\");\r",
+              "});\r",
+              "\r",
+              "// Total validation\r",
+              "pm.test(\"Total amount correct\", function() {\r",
+              "    pm.expect(response.total_amount).to.eql(response.amount + response.charge);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let authKey = pm.environment.get(\"auth_key\");\r",
+              "let expiry = pm.environment.get(\"auth_expire\");\r",
+              "\r",
+              "pm.test(\"auth key validation\",function(){\r",
+              "\r",
+              "    if (!authKey || Date.now() > expiry) {\r",
+              "    postman.setNextRequest(\"Login\");\r",
+              "    }\r",
+              "})\r",
+              "\r",
+              "\r",
+              "let amount = Number(pm.environment.get(\"trx_amount\"));\r",
+              "let balance = Number(pm.environment.get(\"balance\"));\r",
+              "\r",
+              "// Fraud check\r",
+              "if (amount > 5000) {\r",
+              "    throw new Error(\"FRAUD_DETECTED\");\r",
+              "}\r",
+              "\r",
+              "// Invalid\r",
+              "if (amount <= 0) {\r",
+              "    throw new Error(\"INVALID_AMOUNT\");\r",
+              "}\r",
+              "\r",
+              "// Balance check\r",
+              "if (amount > balance) {\r",
+              "    throw new Error(\"INSUFFICIENT_BALANCE\");\r",
+              "}\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{auth_key}}",
+            "type": "text"
+          },
+          {
+            "key": "X-Auth-Hash",
+            "value": "{{encrypted_password}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"user_id\": \"{{user_id}}\",\r\n  \"amount\": \"{{trx_amount}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/transactions/pre-validate",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "transactions",
+            "pre-validate"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "prevalidation",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{auth_key}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Auth-Hash",
+                "value": "{{encrypted_password}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"user_id\": \"101\",\r\n  \"amount\": \"1000\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions/pre-validate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "pre-validate"
+              ]
+            }
+          },
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": "{\n    \"pre_trx_id\": \"pre_123456\",\n    \"amount\": 1000,\n    \"charge\": 20,\n    \"total_amount\": 1020,\n    \"eligible\": true\n}"
+        }
+      ]
+    },
+    {
+      "name": "transaction",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let request = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));\r",
+              "\r",
+              "\r",
+              "let authKey = pm.environment.get(\"auth_key\");\r",
+              "let expiry = pm.environment.get(\"auth_expire\");\r",
+              "\r",
+              "pm.test(\"auth key validation\",function(){\r",
+              "\r",
+              "    if (!authKey || Date.now() > expiry) {\r",
+              "    postman.setNextRequest(\"Login\");\r",
+              "    }\r",
+              "})\r",
+              "\r",
+              "pm.test(\"pre_trx_id present in request\", () => {\r",
+              "    pm.expect(request.pre_trx_id).to.exist;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Total amount matches pre-validation\", () => {\r",
+              "    pm.expect(Number(request.total_amount))\r",
+              "        .to.eql(Number(pm.environment.get(\"total_amount\")));\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json();\r",
+              "let request = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));\r",
+              "pm.test(\"Transaction ID exists\", () => {\r",
+              "    pm.expect(response.trx_id).to.exist;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Status is SUCCESS\", () => {\r",
+              "    pm.expect(response.status).to.eql(\"SUCCESS\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"pre_trx_id present in request\", () => {\r",
+              "    pm.expect(request.pre_trx_id).to.exist;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Total amount matches pre-validation\", () => {\r",
+              "    pm.expect(Number(request.total_amount))\r",
+              "        .to.eql(Number(pm.environment.get(\"total_amount\")));\r",
+              "});\r",
+              "\r",
+              "pm.test(\"pre_trx_id present in request\", () => {\r",
+              "    pm.expect(request.pre_trx_id).to.exist;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Total amount matches pre-validation\", () => {\r",
+              "    pm.expect(Number(request.total_amount))\r",
+              "        .to.eql(Number(pm.environment.get(\"total_amount\")));\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{auth_key}}",
+            "type": "text"
+          },
+          {
+            "key": "X-Auth-Hash",
+            "value": "{{encrypted_password}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"user_id\": \"{{user_id}}\",\r\n  \"service_id\": \"{{service_id}}\",\r\n  \"amount\": \"{{trx_amount}}\",\r\n  \"total_amount\": \"{{total_amount}}\",\r\n  \"pre_trx_id\": \"{{pre_trx_id}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/transactions/execute",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "transactions",
+            "execute"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "success",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_key}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Auth-Hash",
+                "value": "{{encrypted_password}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"user_id\": \"101\",\r\n  \"service_id\": \"1\",\r\n  \"amount\": \"1000\",\r\n  \"total_amount\": \"1020\",\r\n  \"pre_trx_id\": \"pre_123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions/execute",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "execute"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": "{\r\n  \"trx_id\": 9001,\r\n  \"status\": \"SUCCESS\"\r\n}"
+        },
+        {
+          "name": "failed",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_key}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Auth-Hash",
+                "value": "{{encrypted_password}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"user_id\": \"101\",\r\n  \"service_id\": \"1\",\r\n  \"amount\": \"1000\",\r\n  \"total_amount\": \"1020\",\r\n  \"pre_trx_id\": \"wrong_id\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "POST {{base_url}}/transactions/execute",
+              "host": [
+                "POST {{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "execute"
+              ]
+            }
+          },
+          "status": "Forbidden",
+          "code": 403,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "description": "",
+              "type": "text"
+            }
+          ],
+          "cookie": [],
+          "body": "{\"pre_trx_id\": \"invalid_999\"}"
         }
       ]
     }
