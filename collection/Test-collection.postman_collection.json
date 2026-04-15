@@ -1044,7 +1044,7 @@
           "listen": "prerequest",
           "script": {
             "exec": [
-              "let request = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));\r",
+              "let reqBody  = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));\r",
               "\r",
               "\r",
               "let authKey = pm.environment.get(\"auth_key\");\r",
@@ -1058,11 +1058,11 @@
               "})\r",
               "\r",
               "pm.test(\"pre_trx_id present in request\", () => {\r",
-              "    pm.expect(request.pre_trx_id).to.exist;\r",
+              "    pm.expect(reqBody .pre_trx_id).to.exist;\r",
               "});\r",
               "\r",
               "pm.test(\"Total amount matches pre-validation\", () => {\r",
-              "    pm.expect(Number(request.total_amount))\r",
+              "    pm.expect(Number(reqBody .total_amount))\r",
               "        .to.eql(Number(pm.environment.get(\"total_amount\")));\r",
               "});"
             ],
